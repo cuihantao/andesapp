@@ -1,12 +1,15 @@
-FROM iodide/pyodide-env:9 as builder
+FROM pyodide/pyodide-env:latest as builder
 
 # Install native Andes for converting .xslx cases to .json format.
+
 RUN python3 -m pip install 'andes==1.3.5'
 
+RUN wget https://github.com/pyodide/pyodide/archive/refs/tags/0.19.0.zip && \
+    unzip 0.19.0.zip -d /usr/src
 
-ENV PYODIDE_DIR /usr/src/pyodide
+ENV PYODIDE_DIR /usr/src/pyodide-0.19.0
 
-COPY third_party/pyodide-0.16.1 $PYODIDE_DIR
+# COPY third_party/pyodide-0.16.1 $PYODIDE_DIR
 WORKDIR $PYODIDE_DIR
 COPY src/pyodide.patch pyodide.patch
 RUN cat pyodide.patch | patch -p1

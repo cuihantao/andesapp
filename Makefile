@@ -3,7 +3,7 @@ WASM_TAG = andesapp/wasm
 
 .PHONY: wasmbuild
 wasmbuild:
-	docker build --target $(TARGET) -t $(WASM_TAG) .
+	docker build -t $(WASM_TAG) .
 
 .PHONY: wasmrun
 wasmrun:

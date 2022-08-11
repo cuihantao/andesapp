@@ -1,53 +1,44 @@
-diff -Naur a/Makefile b/Makefile
---- a/Makefile	2021-04-16 16:30:35.302171000 +0200
-+++ b/Makefile	2021-04-16 16:35:16.947736909 +0200
-@@ -13,13 +13,13 @@
- SHELL := /bin/bash
- CC=emcc
- CXX=em++
--OPTFLAGS=-O2
-+OPTFLAGS=-O3
- CFLAGS=$(OPTFLAGS) -g -I$(PYTHONINCLUDE) -Wno-warn-absolute-paths
- CXXFLAGS=$(CFLAGS) -std=c++14
+diff --git a/cpython/Makefile b/cpython/Makefile
+index cbdd45fa..d82f544f 100644
+--- a/cpython/Makefile
++++ b/cpython/Makefile
+@@ -12,10 +12,10 @@ URL=https://www.python.org/ftp/python/$(PYVERSION)/Python-$(PYVERSION).tgz
+ LIB=libpython$(PYMAJOR).$(PYMINOR).a
+ SYSCONFIG_NAME=_sysconfigdata__emscripten_
  
+-ZLIBVERSION = 1.2.11
++ZLIBVERSION = 1.2.12
+ ZLIBTARBALL=$(ROOT)/downloads/zlib-$(ZLIBVERSION).tar.gz
+ ZLIBBUILD=$(ROOT)/build/zlib-$(ZLIBVERSION)
+-ZLIBURL=https://zlib.net/zlib-1.2.11.tar.gz
++ZLIBURL=https://zlib.net/zlib-1.2.12.tar.gz
  
- LDFLAGS=\
--	-O2 \
-+	-O3 \
- 	-s MODULARIZE=1 \
- 	$(CPYTHONROOT)/installs/python-$(PYVERSION)/lib/libpython$(PYMINOR).a \
- 	-s "BINARYEN_METHOD='native-wasm'" \
-diff -Naur a/pyodide_build/buildall.py b/pyodide_build/buildall.py
---- a/pyodide_build/buildall.py	2020-12-25 22:05:54.000000000 +0100
-+++ b/pyodide_build/buildall.py	2021-04-16 16:39:34.915644083 +0200
-@@ -72,10 +72,15 @@
-                     stderr=subprocess.STDOUT,
-                 )
+ SQLITETARBALL=$(ROOT)/downloads/sqlite-autoconf-3270200.tar.gz
+ SQLITEBUILD=$(ROOT)/build/sqlite-autoconf-3270200
+@@ -87,7 +87,7 @@ $(BUILD)/.patched: $(TARBALL)
  
--        with open(self.pkgdir / "build.log", "r") as f:
--            shutil.copyfileobj(f, sys.stdout)
-+        try:
-+            p.check_returncode()
-+        except subprocess.CalledProcessError:
-+            print(f"Error building {self.name}. Printing build logs.")
+ $(ZLIBBUILD)/.configured: $(ZLIBTARBALL)
+ 	[ -d $(ROOT)/build ] || (mkdir $(ROOT)/build)
+-	tar -C $(ROOT)/build/ -xf $(ROOT)/downloads/zlib-1.2.11.tar.gz
++	tar -C $(ROOT)/build/ -xf $(ROOT)/downloads/zlib-1.2.12.tar.gz
+ 	cd $(ZLIBBUILD); emconfigure ./configure
+ 	touch $@
  
--        p.check_returncode()
-+            with open(self.pkgdir / "build.log", "r") as f:
-+                shutil.copyfileobj(f, sys.stdout)
-+
-+            raise
+diff --git a/packages/zlib/meta.yaml b/packages/zlib/meta.yaml
+index 0089f3f2..e1060f39 100644
+--- a/packages/zlib/meta.yaml
++++ b/packages/zlib/meta.yaml
+@@ -1,10 +1,10 @@
+ package:
+   name: zlib
+-  version: 1.2.11
++  version: 1.2.12
  
-         if not self.library:
-             shutil.copyfile(
-diff -Naur a/pyodide_build/common.py b/pyodide_build/common.py
---- a/pyodide_build/common.py	2021-04-16 16:30:30.090275000 +0200
-+++ b/pyodide_build/common.py	2021-04-16 16:35:29.200023229 +0200
-@@ -7,7 +7,7 @@
- # fmt: off
- DEFAULTLDFLAGS = " ".join(
-     [
--        "-O2",
-+        "-O3",
-         "-s", "BINARYEN_METHOD='native-wasm'",
-         "-Werror",
-         "-s", "EMULATED_FUNCTION_POINTERS=1",
+ source:
+-  sha256: c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1
+-  url: https://zlib.net/zlib-1.2.11.tar.gz
++  sha256: 91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9
++  url: https://zlib.net/zlib-1.2.12.tar.gz
+ 
+ build:
+   library: true
