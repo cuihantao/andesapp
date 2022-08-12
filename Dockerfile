@@ -1,21 +1,23 @@
-FROM pyodide/pyodide-env:latest as builder
+FROM pyodide/pyodide-env:20220629-py310-chrome102-firefox100 as builder
 
 # Install native Andes for converting .xslx cases to .json format.
 
 RUN python3 -m pip install 'andes==1.3.5'
 
-RUN wget https://github.com/pyodide/pyodide/archive/refs/tags/0.19.0.zip && \
-    unzip 0.19.0.zip -d /usr/src
+RUN wget https://github.com/pyodide/pyodide/archive/refs/tags/0.21.0.zip && \
+    unzip 0.21.0.zip -d /usr/src
 
-ENV PYODIDE_DIR /usr/src/pyodide-0.19.0
+ENV PYODIDE_DIR /usr/src/pyodide-0.21.0
 
 # COPY third_party/pyodide-0.16.1 $PYODIDE_DIR
 WORKDIR $PYODIDE_DIR
-COPY src/pyodide.patch pyodide.patch
-RUN cat pyodide.patch | patch -p1
+# COPY src/pyodide.patch pyodide.patch
+# RUN cat pyodide.patch | patch -p1
 
-RUN make emsdk/emsdk/.complete
-RUN make build/pyodide.asm.js build/pyodide.asm.data
+# RUN make emsdk/emsdk/.complete
+# RUN make build/pyodide.asm.js build/pyodide.asm.data
+
+RUN make
 
 #COPY src/buildall.py $PYODIDE_DIR/pyodide_build/buildall.py
 RUN PYODIDE_PACKAGES="micropip,numpy,sympy" make
